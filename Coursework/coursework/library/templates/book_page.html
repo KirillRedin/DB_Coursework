@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %} {{ book.Title }} {% endblock %}
+{% block content %}
+{% load filter %}
+
+<div class="jumbotron text-center">
+    <a href="/online_library/" style="text-decoration: none; color: inherit;" ><h1 class="libhead">Онлайн бібліотека</h1></a>
+
+    <div style="float: right; position: relative; left: 50px;">
+        {% if current_user.is_superuser %}
+        <a class="btn btn-default" href="/online_library/admin/add_book">Додати книгу</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="btn btn-default" href="/online_library/profile/{{ current_user.id }}">Профіль</a>
+        <a class="btn btn-default" href="/logout/">Вихід</a>
+        {% else %}
+        <a class="btn btn-default" href="/login/">Вхід</a>
+        {% endif %}
+    </div>
+
+    <form class="form-inline" method="post" action="/online_library/" style="float: left; position: relative; right: 50px;">
+        {% csrf_token %}
+        <div class="form-group">
+            <button class="btn btn-default">Пошук:</button>
+            <input type="search" class="form-control" name="title_phrase" placeholder="Назва">
+            <input type="search" class="form-control" name="author_phrase" placeholder="Автор">
+            <select name="section_name" class="form-control">
+                <option selected hidden value="">Оберіть розділ</option>
+                {% for section in sections %}
+                <option value="{{ section.Name }}" >{{section.Name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+</div>
+
+<div class="form-group row" align="center">
+    <h3>{{ book.Title }}</h3>
+    <h4>Автор:</h4>
+    <a href="/online_library/{{book.Author}}"><h4>{{ book.Author }}</h4></a>
+
+    <form action="/online_library/like/{{ book|underscore:'_id' }}" style="display: inline">
+        <button type="submit" class="btn btn-default glyphicon glyphicon-plus"
+        {% if user_rating.Rating == 1 or not current_user.is_authenticated %} disabled {% endif %}></button>
+    </form>
+        <h4 style="display: inline">{{ book_rating }}</h4>
+    <form action="/online_library/dislike/{{ book|underscore:'_id' }}" style="display: inline">
+        <button type="submit" class="btn btn-default glyphicon glyphicon-minus"
+        {% if user_rating.Rating == -1 or not current_user.is_authenticated %} disabled {% endif %}></button>
+    </form>
+
+    <table>
+        <tr align="center">
+            <td>
+                <h4> Розділ: {{ book.Sections.Name }}</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="{{ book.Book_url }} "  target="_blank">
+                    <img class="borders" src='{{ book.Image_url }}' height="300px" width="200px" alt='Відсутнє'/>
+                </a>
+            </td>
+            <td valign="top">
+            </td>
+            <td align="center" valign="top">
+                <p style="width: 400px">
+                    {{ book.Description }}
+                </p>
+                <a href="{{ book.Book_url }}" target="_blank"><h4>Читати онлайн...</h4></a>
+            </td>
+        </tr>
+        {% if current_user.is_superuser %}
+        <tr align="center">
+            <td>
+                <a href="/online_library/admin/edit_book/{{ book|underscore:'_id' }}" class="btn btn-default col-md-6">Редагувати</a>
+                <a href="/online_library/admin/delete_book/{{ book|underscore:'_id' }}" class="btn btn-default col-md-6">Видалити</a>
+            </td>
+        </tr>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+        <tr align="center">
+            <td>
+                <a href="/online_library/add_favorite/{{ book|underscore:'_id' }}" class="btn btn-default col-md-12">
+                    {% if not favorites %}
+                    Додати до колекції
+                    {% else %}
+                    Прибрати з колекції
+                    {% endif %}
+                </a>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+ </div>
+
+
+<div class="row text-center">
+        <table align="center" style="width: 600px">
+
+            {% for comment in comments %}
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <div align="left">
+                            <a href="/online_library/profile/{{ comment.User.id }}"><h3 style="display: inline;">{{ comment.User.Name }} </h3></a>
+                            <p class="secondary" style="display: inline;">{{ comment.Date }}<sup>{{ comment.Time }}</sup></p>
+                        </div>
+                        <div class="comment">
+                            <p style="font-family: monospace;" align="left">{{ comment.Text }}</p>
+                        </div>
+
+                    </div>
+                </td>
+                {% if comment.User.id == current_user.id or current_user.is_superuser%}
+                <td>
+                    <form action="/online_library/delete_comment/{{ comment|underscore:'_id' }}">
+                        <button type="submit" class="btn btn-default glyphicon glyphicon-trash"></button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <div class="form-group" align="center">
+                        <ul class="pagination">
+                            {% if comments.has_previous %}
+                            <li><a href="?page={{ books.previous_page_number }}">«</a></li>
+                            {% endif %}
+
+                            <li><a>Page {{ comments.number }} of {{ comments.paginator.num_pages }}</a></li>
+
+                            {% if comments.has_next %}
+                            <li><a href="?page={{ comments.next_page_number }}">»</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% if current_user.is_authenticated %}
+            <form method="post">
+                <tr>
+                    <td>
+
+                        {% csrf_token %}
+                        <label for="my_comment" >Залишіть свій коментар:</label>
+                        <textarea required rows="4" cols="50" name="my_comment" id="my_comment" class="form-control" style="resize: vertical"></textarea>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button class="btn btn-default" type="submit">Відправити</button>
+                    </td>
+                </tr>
+            </form>
+            {% endif %}
+        </table>
+</div>
+
+{% endblock %}

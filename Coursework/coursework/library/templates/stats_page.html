@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %} Main {% endblock %}
+{% block content %}
+{% load filter %}
+
+<div class="jumbotron text-center">
+    <a href="/online_library/" style="text-decoration: none; color: inherit;"><h1 class="libhead">Онлайн бібліотека</h1></a>
+
+    <div style="float: right; position: relative; left: 50px;">
+        {% if current_user.is_superuser %}
+        <a class="btn btn-default" href="/online_library/admin/stats">Статистика</a>
+        {% endif %}
+        {% if user.is_superuser  and current_user.is_superuser %}
+        <a class="btn btn-default" href="/online_library/admin/add_book">Додати книгу</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="btn btn-default" href="/online_library/profile/{{ current_user.id }}">Профіль</a>
+        <a class="btn btn-default" href="/logout/">Вихід</a>
+        {% else %}
+        <a class="btn btn-default" href="/login/">Вхід</a>
+        {% endif %}
+    </div>
+
+    <form class="form-inline" method="post" action="/online_library/" style="float: left; position: relative; right: 50px;">
+        {% csrf_token %}
+        <div class="form-group">
+            <button class="btn btn-default">Пошук:</button>
+            <input type="search" class="form-control" name="title_phrase" placeholder="Назва">
+            <input type="search" class="form-control" name="author_phrase" placeholder="Автор">
+            <select name="section_name" class="form-control">
+                <option selected hidden value="">Оберіть розділ</option>
+                {% for section in sections %}
+                <option value="{{ section.Name }}" >{{section.Name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

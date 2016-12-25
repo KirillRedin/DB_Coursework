@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+
+        p.error {
+            color: red;
+        }
+
+        p {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+        }
+
+        p.secondary, h4.secondary{
+         color: #A4A4A4;
+        }
+
+        div.comment {
+            background: #F2F2F2;
+            border-radius: 20px;
+            line-height: 2;
+            margin-left: 5px;
+            margin-right: 5px;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 10px;
+            padding-bottom: 1px;
+        }
+
+        img.borders {
+            border-radius: 10px;
+        }
+
+        h1.libhead {
+        font-family: serif;
+        }
+
+        div.table {
+            width: 30%
+        }
+
+        ul.pagination {
+            display: inline-block;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul.pagination li {display: inline;}
+
+        ul.pagination li a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+
+        ul.pagination li a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        ul.pagination li a:hover:not(.active) {background-color: #ddd;}
+    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/core.css' %}">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+</head>
+<body background="">
+<div class="container">
+        {% block content %}
+        {% endblock %}
+</div>
+</body>
+</html>

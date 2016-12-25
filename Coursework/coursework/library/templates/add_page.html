@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %} Add {% endblock %}
+{% block content %}
+
+<div class="jumbotron text-center">
+    <a href="/online_library/" style="text-decoration: none; color: inherit;"><h1 class="libhead">Онлайн бібліотека</h1></a>
+
+    <div style="float: right; position: relative; left: 50px;">
+        {% if current_user.is_superuser %}
+        <a class="btn btn-default" href="/online_library/admin/add_book">Додати книгу</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="btn btn-default" href="/online_library/profile/{{ user.id }}">Профіль</a>
+        <a class="btn btn-default" href="/logout/">Вихід</a>
+        {% else %}
+        <a class="btn btn-default" href="/login/">Вхід</a>
+        {% endif %}
+    </div>
+
+    <form class="form-inline" method="post" action="/online_library/" style="float: left; position: relative; right: 50px;">
+        {% csrf_token %}
+        <div class="form-group">
+            <button class="btn btn-default">Пошук:</button>
+            <input type="search" class="form-control" name="title_phrase" placeholder="Назва">
+            <input type="search" class="form-control" name="author_phrase" placeholder="Автор">
+            <select name="section_name" class="form-control">
+                <option selected hidden value="">Оберіть розділ</option>
+                {% for section in sections %}
+                <option value="{{ section.Name }}" >{{section.Name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="col-lg-4 col-lg-offset-4 text-center">
+
+    <h2>Додати нову книгу</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title" >Назва:</label>
+            <input type="text" name="title" id="title" class="form-control" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="author" >Автор:</label>
+            <input type="text" name="author" id="author" class="form-control" required/>
+        </div>
+
+        <div class="form-group">
+            <select name="section_name" class="form-control" required>
+                <option disabled selected hidden value="">Розділ</option>
+                {% for section in sections %}
+                <option value="{{ section.Name }}" >{{section.Name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description" >Опис:</label>
+            <textarea rows="4" cols="50" name="description" id="description" class="form-control" required></textarea>
+        </div>
+
+        <div class="form-group" align="center">
+            <label for="book_file" >Книга:</label>
+            <input type="file" name="book_file" id="book_file" required>
+        </div>
+
+        <div class="form-group" align="center">
+            <label for="image_file" >Зображення:</label>
+            <input type="file" name="image_file" id="image_file" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-default">Завантажити</button>
+        </div>
+    </form>
+
+    <form method="get" action="/online_library">
+        <button type="submit" class="btn btn-default">На головну сторінку</button>
+    </form>
+
+    {% if uploaded_book_url %}
+    <p>Книга "{{ title }}"</p>
+    <p>автора {{ author }}</p>
+    <p>успішно завантажена в</p>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %} Registration {% endblock %}
+{% block content %}
+
+<div class="jumbotron text-center">
+    <a href="/online_library/" style="text-decoration: none; color: inherit;"><h1 class="libhead">Онлайн бібліотека</h1></a>
+
+    <div style="float: right; position: relative; left: 50px;">
+        {% if current_user.is_superuser %}
+        <a class="btn btn-default" href="/online_library/admin/add_book">Додати книгу</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="btn btn-default" href="/online_library/profile/{{ user.id }}">Профіль</a>
+        <a class="btn btn-default" href="/logout/">Вихід</a>
+        {% else %}
+        <a class="btn btn-default" href="/login/">Вхід</a>
+        {% endif %}
+    </div>
+
+    <form class="form-inline" method="post" action="/online_library/" style="float: left; position: relative; right: 50px;">
+        {% csrf_token %}
+        <div class="form-group">
+            <button class="btn btn-default">Пошук:</button>
+            <input type="search" class="form-control" name="title_phrase" placeholder="Назва">
+            <input type="search" class="form-control" name="author_phrase" placeholder="Автор">
+            <select name="section_name" class="form-control">
+                <option selected hidden value="">Оберіть розділ</option>
+                {% for section in sections %}
+                <option value="{{ section.Name }}" >{{section.Name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="col-lg-4 col-lg-offset-4 text-center">
+
+    <h2>Реєстрація</h2>
+
+    <form method="post" action="{{ request.get_full_path }}">
+    {% csrf_token %}
+
+        {% if user_error or pass_error or success_message%}
+        <div class="form-group">
+            {% if success_message %}
+            <p style="color:green">{{ success_message }}</p>
+            {% endif %}
+
+            {% if user_error %}
+            <p style="color:red">{{ user_error }}</p>
+            {% endif %}
+
+            {% if pass_error %}
+            <p style="color:red">{{ pass_error }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="name" >Введіть ім'я:</label>
+            <input required type="text" name="name" id="name" class="form-control"/>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Введіть пароль</label>
+            <input required type="password" name="password" id="password" class="form-control"/>
+        </div>
+
+        <div class="form-group">
+            <label for="r_password">Повторіть пароль</label>
+            <input required type="password" name="r_password" id="r_password" class="form-control"/>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-default">Зареєструватися</button>
+        </div>
+    </form>
+
+    <form method="get" action="/login">
+        <div class="form-group">
+            <button type="submit" class="btn btn-default">На головну сторінку</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
